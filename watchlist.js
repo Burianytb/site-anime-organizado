@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         container.innerHTML = "<p>Sua watchlist está vazia.</p>";
       }
     });
-
     container.appendChild(card);
   }
 });

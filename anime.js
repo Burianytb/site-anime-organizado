@@ -4,6 +4,10 @@ import {
   buscarDetalhesSerie
 } from './api.js';
 
+// 🔐 Recupera nome real da sessão salva no login
+const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+const nomeUsuario = usuarioLogado?.username || "Usuário"; // Fallback se não estiver logado
+
 document.addEventListener("DOMContentLoaded", async () => {
   const id = parseInt(new URLSearchParams(window.location.search).get("id"));
   if (!id) return;
@@ -20,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   titleEl.textContent = anime.title;
   img.src = anime.images.jpg.large_image_url;
 
-  const sinopsePT = await buscarSinopsePT(titulos[0]); // tenta com o primeiro título válido
+  const sinopsePT = await buscarSinopsePT(titulos[0]);
   sinopseEl.textContent = sinopsePT || anime.synopsis || "Sinopse não encontrada.";
 
   const detalhes = await buscarDetalhesSerie(titulos[0]);
@@ -69,4 +73,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       listaTemporada.appendChild(li);
     });
   }
+
+  // 💬 Comentários com nome automático da conta
+  const form = document.getElementById("comentario-form");
+  const msgInput = document.getElementById("mensagem");
+  const listaComentarios = document.getElementById("lista-comentarios");
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const mensagem = msgInput.value.trim();
+    if (!mensagem) return;
+
+    const comentarioEl = document.createElement("div");
+    comentarioEl.classList.add("comentario");
+    comentarioEl.style.marginBottom = "10px";
+    comentarioEl.innerHTML = `
+      <strong>${nomeUsuario}</strong><br>
+      <p>${mensagem}</p>
+      <hr>
+    `;
+
+    listaComentarios.appendChild(comentarioEl);
+    msgInput.value = "";
+  });
 });

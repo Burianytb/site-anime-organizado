@@ -9,7 +9,7 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
   const paginaAtual = window.location.pathname.split("/").pop();
-  const paginasPublicas = ["login.html", "registro.html"];
+  const paginasPublicas = ["", "index.html", "login.html", "registro.html"];
   const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
 
   let listaWatchlist = [];
@@ -17,20 +17,19 @@ document.addEventListener("DOMContentLoaded", () => {
     listaWatchlist = JSON.parse(sessionStorage.getItem("watchlist"));
   }
 
-  if (!paginasPublicas.includes(paginaAtual) && !usuarioLogado) {
+  // Redirecionamento condicional
+  if (!usuarioLogado && !paginasPublicas.includes(paginaAtual)) {
     window.location.href = "login.html";
     return;
   }
 
-  if (paginasPublicas.includes(paginaAtual) && usuarioLogado) {
+  if (usuarioLogado && ["login.html", "registro.html"].includes(paginaAtual)) {
     window.location.href = "index.html";
     return;
   }
 
   const loginBtn = document.querySelector(".login-btn");
   const registerBtn = document.querySelector(".register-btn");
-
-  
 
   if (usuarioLogado && loginBtn && registerBtn) {
     loginBtn.textContent = `${usuarioLogado.username}`;
@@ -227,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       li.appendChild(card);
       container.appendChild(li);
     }
+
     if (!id.includes("resultado")) {
       new Splide(`#${id.replace("-list", "")}`, {
         type: 'loop',
@@ -244,6 +244,20 @@ document.addEventListener("DOMContentLoaded", () => {
           360: { perPage: 1.5 }
         }
       }).mount();
+      // Delegação de eventos para botões de favoritos
+      container.addEventListener("click", e => {
+        const btn = e.target.closest(".btn-watchlist-icon");
+        if (!btn) return;
+
+        const animeId = btn.getAttribute("data-id");
+        if (!watchlist.includes(Number(animeId))) {
+          watchlist.push(Number(animeId));
+          sessionStorage.setItem("watchlist", JSON.stringify(watchlist));
+          btn.classList.add("ativo");
+          btn.textContent = "✅";
+        }
+      });
+
     }
   }
 });
