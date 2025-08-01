@@ -9,7 +9,7 @@ import {
 
 document.addEventListener("DOMContentLoaded", () => {
   const paginaAtual = window.location.pathname.split("/").pop();
-  const paginasPublicas = ["", "index.html", "login.html", "registro.html"];
+  const paginasPublicas = ["", "index.html", "login.html", "registro.html", "anime.html"];
   const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
 
   let listaWatchlist = [];
