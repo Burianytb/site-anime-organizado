@@ -1,5 +1,6 @@
 import { buscarPorId } from './api.js';
 
+
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("watchlist-list");
 

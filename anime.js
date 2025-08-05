@@ -7,7 +7,8 @@ import {
 // Verifica se usuário está logado
 const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
 const nomeUsuario = usuarioLogado?.username || "Usuário";
-const avatarUsuario = usuarioLogado?.avatar || gerarAvatarAleatorio();
+const avatarUsuario = usuarioLogado?.avatar ? usuarioLogado.avatar : gerarAvatarAleatorio();
+
 
 // Gera avatar aleatório para visitantes
 function gerarAvatarAleatorio() {

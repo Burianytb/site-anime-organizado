@@ -17,8 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let watchlist = [];
-  if (sessionStorage.getItem("watchlist")) {
-    watchlist = JSON.parse(sessionStorage.getItem("watchlist"));
+  const usuario = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+  if (usuario) {
+    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    watchlist = users[usuario.username]?.watchlist || [];
   }
 
   if (genero) {
@@ -43,8 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const json = await resBusca.json();
       const serie = json.results?.[0];
       if (serie) {
-        const detalhes = await fetch(`https://api.themoviedb.org/3/tv/${serie.id}?api_key=${TMDB_API_KEY}&language=pt-BR`)
-          .then(r => r.json());
+        const detalhes = await fetch(`https://api.themoviedb.org/3/tv/${serie.id}?api_key=${TMDB_API_KEY}&language=pt-BR`).then(r => r.json());
         if (detalhes.overview?.trim()) {
           return detalhes.overview;
         }
@@ -100,9 +101,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const btn = card.querySelector(".btn-watchlist-icon");
           btn.addEventListener("click", e => {
             e.preventDefault();
-            if (!watchlist.includes(tmdbId)) {
-              watchlist.push(tmdbId);
-              sessionStorage.setItem("watchlist", JSON.stringify(watchlist));
+            const usuario = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+            if (usuario) {
+              const users = JSON.parse(localStorage.getItem("users") || "{}");
+              const dados = users[usuario.username] || { watchlist: [] };
+
+              if (!dados.watchlist.includes(tmdbId)) {
+                dados.watchlist.push(tmdbId);
+                users[usuario.username] = dados;
+                localStorage.setItem("users", JSON.stringify(users));
+              }
+
               btn.classList.add("ativo");
               btn.textContent = "✅";
             }
@@ -171,9 +180,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = card.querySelector(".btn-watchlist-icon");
       btn.addEventListener("click", e => {
         e.preventDefault();
-        if (!watchlist.includes(idAnime)) {
-          watchlist.push(idAnime);
-          sessionStorage.setItem("watchlist", JSON.stringify(watchlist));
+        const usuario = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+        if (usuario) {
+          const users = JSON.parse(localStorage.getItem("users") || "{}");
+          const dados = users[usuario.username] || { watchlist: [] };
+
+          if (!dados.watchlist.includes(idAnime)) {
+            dados.watchlist.push(idAnime);
+            users[usuario.username] = dados;
+            localStorage.setItem("users", JSON.stringify(users));
+          }
+
           btn.classList.add("ativo");
           btn.textContent = "✅";
         }

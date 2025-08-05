@@ -11,13 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const paginaAtual = window.location.pathname.split("/").pop();
   const paginasPublicas = ["", "index.html", "login.html", "registro.html", "anime.html"];
   const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  let listaWatchlist = usuarioLogado ? users[usuarioLogado.username]?.watchlist || [] : [];
 
-  let listaWatchlist = [];
-  if (sessionStorage.getItem("watchlist")) {
-    listaWatchlist = JSON.parse(sessionStorage.getItem("watchlist"));
-  }
-
-  // Redirecionamento condicional
+  // 🔐 Redirecionamento condicional
   if (!usuarioLogado && !paginasPublicas.includes(paginaAtual)) {
     window.location.href = "login.html";
     return;
@@ -28,18 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // 👤 Botões de login e logout
   const loginBtn = document.querySelector(".login-btn");
   const registerBtn = document.querySelector(".register-btn");
 
   if (usuarioLogado && loginBtn && registerBtn) {
     loginBtn.textContent = `${usuarioLogado.username}`;
     loginBtn.href = "watchlist.html";
-    loginBtn.removeAttribute("onclick");
-    loginBtn.addEventListener("click", e => e.stopImmediatePropagation());
-
     registerBtn.textContent = "Sair";
     registerBtn.href = "#";
-    registerBtn.removeAttribute("onclick");
     registerBtn.addEventListener("click", e => {
       e.preventDefault();
       sessionStorage.removeItem("usuarioLogado");
@@ -47,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 🎭 Menu de gêneros
   const submenuGeneros = document.querySelector(".dropdown .submenu-generos");
   const mapaGeneros = {
     "Ação": 1, "Aventura": 2, "Comédia": 4, "Drama": 8,
@@ -56,9 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "Suspense": 41
   };
 
-  if (submenuGeneros && submenuGeneros.parentElement.classList.contains("dropdown")) {
+  if (submenuGeneros) {
     Object.keys(mapaGeneros).forEach(gen => {
-      const li = document.createElement("li");
       const link = document.createElement("a");
       link.href = "#";
       link.textContent = gen;
@@ -66,11 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         window.location.href = `resultado.html?genero=${encodeURIComponent(gen)}`;
       });
+
+      const li = document.createElement("li");
       li.append(link);
       submenuGeneros.append(li);
     });
   }
 
+  // 🔎 Busca com debounce
   const searchInput = document.getElementById("search");
   const searchResults = document.getElementById("search-results");
 
@@ -115,10 +112,15 @@ document.addEventListener("DOMContentLoaded", () => {
             botao.textContent = textoBtn;
             botao.addEventListener("click", e => {
               e.preventDefault();
-              if (!listaWatchlist.includes(anime.mal_id)) {
-                listaWatchlist.push(anime.mal_id);
-                sessionStorage.setItem("watchlist", JSON.stringify(listaWatchlist));
-                botao.textContent = "✔️ Salvo";
+              if (usuarioLogado) {
+                const dados = users[usuarioLogado.username] || { watchlist: [] };
+                if (!dados.watchlist.includes(anime.mal_id)) {
+                  dados.watchlist.push(anime.mal_id);
+                  users[usuarioLogado.username] = dados;
+                  localStorage.setItem("users", JSON.stringify(users));
+                  botao.textContent = "✔️ Salvo";
+                  listaWatchlist = dados.watchlist;
+                }
               }
             });
 
@@ -153,12 +155,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 🧭 Navegação e listas
   const params = new URLSearchParams(window.location.search);
   const generoQuery = params.get("genero");
   const buscaQuery = params.get("busca");
 
   if (paginaAtual === "watchlist.html") {
-    carregarWatchlist();
+    carregarWatchlist(); // você pode definir essa função no próprio watchlist.js
   } else if (generoQuery) {
     buscarPorGenero(generoQuery).then(animes => {
       preencherLista("resultado-genero", animes);
@@ -182,24 +185,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!container) return;
     container.innerHTML = "";
 
-    let watchlist = [];
-    if (sessionStorage.getItem("watchlist")) {
-      watchlist = JSON.parse(sessionStorage.getItem("watchlist"));
-    }
-
     for (const anime of animes) {
       const titulo = anime.title_pt || anime.title || anime.title_english;
       const sinopsePT = await buscarSinopsePT(titulo);
       const sinopse = sinopsePT?.length > 120 ? sinopsePT.substring(0, 117) + "..." : sinopsePT || "Sinopse não disponível";
-
-      const jaSalvo = watchlist.includes(anime.mal_id);
+      const jaSalvo = listaWatchlist.includes(anime.mal_id);
 
       const li = document.createElement("li");
       li.classList.add("splide__slide");
 
       const card = document.createElement("div");
       card.classList.add("card-anime");
-
       card.innerHTML = `
         <a href="anime.html?id=${anime.mal_id}">
           <img src="${anime.images.jpg?.image_url}" alt="${titulo}" />
@@ -211,15 +207,22 @@ document.addEventListener("DOMContentLoaded", () => {
           ${jaSalvo ? "✅" : "➕"}
         </button>
       `;
-
       const btn = card.querySelector(".btn-watchlist-icon");
       btn.addEventListener("click", e => {
         e.preventDefault();
-        if (!watchlist.includes(anime.mal_id)) {
-          watchlist.push(anime.mal_id);
-          sessionStorage.setItem("watchlist", JSON.stringify(watchlist));
-          btn.classList.add("ativo");
-          btn.textContent = "✅";
+
+        if (usuarioLogado) {
+          const dados = users[usuarioLogado.username] || { watchlist: [] };
+          const animeId = Number(btn.getAttribute("data-id"));
+
+          if (!dados.watchlist.includes(animeId)) {
+            dados.watchlist.push(animeId);
+            users[usuarioLogado.username] = dados;
+            localStorage.setItem("users", JSON.stringify(users));
+            btn.classList.add("ativo");
+            btn.textContent = "✅";
+            listaWatchlist = dados.watchlist;
+          }
         }
       });
 
@@ -227,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(li);
     }
 
+    // 🎞️ Configuração do carrossel e delegação de eventos
     if (!id.includes("resultado")) {
       new Splide(`#${id.replace("-list", "")}`, {
         type: 'loop',
@@ -244,20 +248,24 @@ document.addEventListener("DOMContentLoaded", () => {
           360: { perPage: 1.5 }
         }
       }).mount();
-      // Delegação de eventos para botões de favoritos
+
+      // Delegação para adicionar à watchlist via click
       container.addEventListener("click", e => {
         const btn = e.target.closest(".btn-watchlist-icon");
-        if (!btn) return;
+        if (!btn || !usuarioLogado) return;
 
-        const animeId = btn.getAttribute("data-id");
-        if (!watchlist.includes(Number(animeId))) {
-          watchlist.push(Number(animeId));
-          sessionStorage.setItem("watchlist", JSON.stringify(watchlist));
+        const animeId = Number(btn.getAttribute("data-id"));
+        const dados = users[usuarioLogado.username] || { watchlist: [] };
+
+        if (!dados.watchlist.includes(animeId)) {
+          dados.watchlist.push(animeId);
+          users[usuarioLogado.username] = dados;
+          localStorage.setItem("users", JSON.stringify(users));
           btn.classList.add("ativo");
           btn.textContent = "✅";
+          listaWatchlist = dados.watchlist;
         }
       });
-
     }
   }
 });
