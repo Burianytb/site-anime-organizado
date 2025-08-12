@@ -213,7 +213,6 @@ header {
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
-  /* impede que o tamanho varie */
 }
 
 .anime-card:hover {
@@ -1017,8 +1016,6 @@ body.loading {
   /* alinha spinner e texto lado a lado */
   gap: 10px;
 }
-
-
 
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 768px) {

@@ -89,11 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
         searchResults.innerHTML = "";
 
         if (resultados.length > 0) {
-          for (const anime of resultados) {
+          // Busca todas as sinopses em paralelo
+          const sinopses = await Promise.all(resultados.map(async anime => {
             const titulo = anime.title_pt || anime.title || anime.title_english;
             const sinopsePT = await buscarSinopsePT(titulo);
-            const sinopse = sinopsePT?.length > 140 ? sinopsePT.substring(0, 137) + "..." : sinopsePT || "Sinopse não disponível";
+            return sinopsePT?.length > 140 ? sinopsePT.substring(0, 137) + "..." : sinopsePT || "Sinopse não disponível";
+          }));
 
+          resultados.forEach((anime, i) => {
+            const titulo = anime.title_pt || anime.title || anime.title_english;
+            const sinopse = sinopses[i];
             const jaSalvo = listaWatchlist.includes(anime.mal_id);
             const textoBtn = jaSalvo ? "✔️ Salvo" : "➕ Adicionar";
 
@@ -101,13 +106,13 @@ document.addEventListener("DOMContentLoaded", () => {
             a.className = "search-item";
             a.href = `anime.html?id=${anime.mal_id}`;
             a.innerHTML = `
-              <img src="${anime.images.jpg?.image_url}" alt="${titulo}" />
-              <div>
-                <strong>${titulo}</strong>
-                <span class="rating">Score: ${anime.score || "N/A"}</span>
-                <p class="sinopse">${sinopse}</p>
-              </div>
-            `;
+        <img src="${anime.images.jpg?.image_url}" alt="${titulo}" />
+        <div>
+          <strong>${titulo}</strong>
+          <span class="rating">Score: ${anime.score || "N/A"}</span>
+          <p class="sinopse">${sinopse}</p>
+        </div>
+      `;
 
             const botao = document.createElement("button");
             botao.className = "btn-watchlist";
@@ -128,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             a.appendChild(botao);
             searchResults.appendChild(a);
-          }
+          });
 
           const verMais = document.createElement("a");
           verMais.className = "search-item ver-mais";
@@ -140,7 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           searchResults.style.display = "none";
         }
-      }, 400);
+      }, 100);
+
     });
 
     searchInput.addEventListener("keypress", e => {

@@ -153,29 +153,28 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    for (const anime of animes) {
-      const titulos = [anime.title, anime.title_english, anime.title_japanese].filter(Boolean);
-      const sinopsePT = await obterSinopseTMDB(titulos);
-      const sinopse = sinopsePT || anime.synopsis || "Sinopse não disponível.";
-      const sinopseCurta = sinopse.length > 140 ? sinopse.substring(0, 137) + "..." : sinopse;
-      const nota = anime.score ?? "N/A";
-      const imagem = anime.images?.jpg?.image_url || "default.jpg";
+    // Etapa 1: renderiza todos os cards com sinopse padrão
+    animes.forEach(anime => {
       const idAnime = anime.mal_id;
+      const imagem = anime.images?.jpg?.image_url || "default.jpg";
+      const nota = anime.score ?? "N/A";
       const jaSalvo = watchlist.includes(idAnime);
+      const titulo = anime.title;
 
       const card = document.createElement("div");
       card.classList.add("anime-card");
+      card.setAttribute("data-id", idAnime); // usado para localizar depois
       card.innerHTML = `
-        <a href="anime.html?id=${idAnime}" class="anime-link">
-          <img src="${imagem}" alt="${anime.title}">
-          <h3>${anime.title}</h3>
-          <p>${sinopseCurta}</p>
-          <p>⭐ Nota: ${nota}</p>
-        </a>
-        <button class="btn-watchlist-icon ${jaSalvo ? 'ativo' : ''}" data-id="${idAnime}" data-title="${anime.title}">
-          ${jaSalvo ? "✅" : "➕"}
-        </button>
-      `;
+      <a href="anime.html?id=${idAnime}" class="anime-link">
+        <img src="${imagem}" alt="${titulo}">
+        <h3>${titulo}</h3>
+        <p class="sinopse">🔄 Carregando sinopse...</p>
+        <p>⭐ Nota: ${nota}</p>
+      </a>
+      <button class="btn-watchlist-icon ${jaSalvo ? 'ativo' : ''}" data-id="${idAnime}" data-title="${titulo}">
+        ${jaSalvo ? "✅" : "➕"}
+      </button>
+    `;
 
       const btn = card.querySelector(".btn-watchlist-icon");
       btn.addEventListener("click", e => {
@@ -197,6 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       lista.appendChild(card);
-    }
+    });
   }
 });
