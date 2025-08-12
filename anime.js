@@ -65,7 +65,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         lista.appendChild(li);
       });
 
-      listaEps.append(titulo, lista);
+      const blocoTemporada = document.createElement("div");
+      blocoTemporada.classList.add("temporada");
+
+      blocoTemporada.appendChild(titulo);
+      blocoTemporada.appendChild(lista);
+      listaEps.appendChild(blocoTemporada);
     });
   }
 

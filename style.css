@@ -21,7 +21,6 @@ body {
 
 .menu-nav+.watchlist-wrapper {
   min-height: 600px;
-  /* ou qualquer altura que garanta espaço */
 }
 
 /* Corrige problemas de box-sizing em todos os elementos */
@@ -325,6 +324,7 @@ header {
   background-color: #002d3f;
 }
 
+
 .search-item img {
   width: 48px;
   height: 70px;
@@ -353,45 +353,52 @@ header {
   width: 100%;
 }
 
-
-
 /* ========== TÍTULO DA SEÇÃO ========== */
-#temporadas h3 {
-  margin-top: 40px;
-  color: #00ff90;
-  font-size: 1.3rem;
-  text-shadow: 0 0 5px #00ff90;
-}
-
-/* ========== BOTÕES DE TEMPORADA ========== */
-#temporada-botoes {
-  margin: 20px 0;
-}
-
-.botao-temporada {
-  margin: 8px 5px;
+.temporada {
+  margin: 10px 0;
   padding: 8px 16px;
-  background-color: #00ff90;
-  border: 1px solid #00ff90;
-  border-radius: 6px;
-  color: #001f2d;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 0 6px #00ff90;
-  transition: all 0.3s ease;
+  background-color: #001f2d;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0, 255, 144, 0.15);
+  border: 1px solid rgba(0, 255, 144, 0.3);
 }
 
-.botao-temporada:hover {
-  background-color: #00cc70;
-  box-shadow: 0 0 10px #00ff90;
+.temporada:hover {
+  box-shadow: 0 0 12px #00ff90;
 }
 
-/* ========== AGRUPADOR DE BOTÕES ========== */
-.temporada-botoes {
+.temporada-toggle:hover {
+  color: #00cc70;
+}
+
+.temporada ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.temporada li {
+  background-color: #001f2d;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+  align-items: center;
+  gap: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.temporada li:hover {
+  background-color: #002d3f;
+  box-shadow: 0 0 12px #00ff90;
+}
+
+.temporada li img {
+  width: 100px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 6px;
+
 }
 
 /* ========== LISTA DE EPISÓDIOS ========== */
@@ -440,8 +447,6 @@ header {
   cursor: pointer;
   padding: 6px 0;
 }
-
-
 
 /* ========== TÍTULO DA SEÇÃO DE COMENTÁRIOS ========== */
 .comentarios h3 {
@@ -523,7 +528,6 @@ header {
 }
 
 /* ========== COMENTÁRIOS ========== */
-/* Comentários enviados */
 #lista-comentarios .comentario {
   display: flex;
   gap: 12px;
@@ -535,18 +539,15 @@ header {
   color: #d0f0e0;
 }
 
-/* Imagem do comentário — maior, quadrada */
 #lista-comentarios .comentario img {
   width: 80px;
   height: 80px;
   border-radius: 10px;
-  /* Mais quadradinho */
   object-fit: cover;
   box-shadow: 0 0 6px #00ff90;
   flex-shrink: 0;
 }
 
-/* Conteúdo textual do comentário */
 #lista-comentarios .comentario .texto {
   flex: 1;
   display: flex;
@@ -571,7 +572,6 @@ header {
 
 .comentario-resposta {
   margin-left: 40px;
-  /* Indenta para a frente */
   margin-top: 10px;
   display: flex;
   gap: 10px;
@@ -647,13 +647,11 @@ header {
 
 .btn-curtir.curtido {
   background-color: #2e8b57;
-  /* tom verde para curtido */
   color: #fff;
 }
 
 .btn-responder:focus {
   outline: 2px solid #4fc3f7;
-  /* azul claro para foco */
 }
 
 
@@ -896,7 +894,6 @@ h2 {
 .anime-info {
   padding: 60px 20px;
   display: block;
-  /* remove flex que força centralização */
   box-sizing: border-box;
 }
 
@@ -907,7 +904,6 @@ h2 {
   box-shadow: 0 0 25px rgba(0, 255, 144, 0.4);
   border-radius: 12px;
   margin: 0 auto 25px auto;
-  /* apenas imagem centralizada */
   display: block;
 }
 
@@ -929,7 +925,6 @@ h2 {
   text-align: left;
   line-height: 1.7;
   padding: 0 10px;
-  /* margenzinha lateral leve */
 }
 
 .splide__list {
@@ -989,6 +984,8 @@ h2 {
   .logo {
     margin-bottom: 4px;
   }
+
+
 
   nav.menu-nav ul {
     display: flex;
@@ -1083,7 +1080,6 @@ h2 {
 
   #mais-vistos {
     margin-bottom: 40px;
-    /* ou outro valor que fique bom */
   }
 
   #top-avaliados {
