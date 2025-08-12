@@ -76,6 +76,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (searchInput) {
     let debounceTimer;
 
+    // Evita autocomplete na página resultado.html
+    if (paginaAtual === "resultado.html") {
+      searchInput.value = ""; // limpa o campo
+      searchResults.style.display = "none";
+      return;
+    }
+
     searchInput.addEventListener("input", () => {
       clearTimeout(debounceTimer);
       const q = searchInput.value.trim();
@@ -85,11 +92,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       debounceTimer = setTimeout(async () => {
-        const resultados = await buscarPorNome(q);
+        const resultados = (await buscarPorNome(q)).slice(0, 4); // mostra só os 4 primeiros
         searchResults.innerHTML = "";
 
         if (resultados.length > 0) {
-          // Busca todas as sinopses em paralelo
           const sinopses = await Promise.all(resultados.map(async anime => {
             const titulo = anime.title_pt || anime.title || anime.title_english;
             const sinopsePT = await buscarSinopsePT(titulo);
@@ -106,13 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
             a.className = "search-item";
             a.href = `anime.html?id=${anime.mal_id}`;
             a.innerHTML = `
-        <img src="${anime.images.jpg?.image_url}" alt="${titulo}" />
-        <div>
-          <strong>${titulo}</strong>
-          <span class="rating">Score: ${anime.score || "N/A"}</span>
-          <p class="sinopse">${sinopse}</p>
-        </div>
-      `;
+            <img src="${anime.images.jpg?.image_url}" alt="${titulo}" />
+            <div>
+              <strong>${titulo}</strong>
+              <span class="rating">Score: ${anime.score || "N/A"}</span>
+              <p class="sinopse">${sinopse}</p>
+            </div>
+          `;
 
             const botao = document.createElement("button");
             botao.className = "btn-watchlist";
@@ -145,14 +151,16 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           searchResults.style.display = "none";
         }
-      }, 100);
-
+      }, 300); // tempo de debounce ajustado
     });
 
     searchInput.addEventListener("keypress", e => {
       if (e.key === "Enter") {
         const q = searchInput.value.trim();
-        if (q) window.location.href = `resultado.html?busca=${encodeURIComponent(q)}`;
+        if (q) {
+          searchResults.style.display = "none"; // oculta dropdown antes de redirecionar
+          window.location.href = `resultado.html?busca=${encodeURIComponent(q)}`;
+        }
       }
     });
 
@@ -162,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
   const params = new URLSearchParams(window.location.search);
   const generoQuery = params.get("genero");
   const buscaQuery = params.get("busca");
