@@ -8,13 +8,19 @@ import {
 } from './api.js';
 
 document.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById("overlay-loading");
   const paginaAtual = window.location.pathname.split("/").pop();
-  const paginasPublicas = ["", "index.html", "login.html", "registro.html", "anime.html"];
+  const paginasPublicas = ["", "resultado.html", "index.html", "login.html", "registro.html", "anime.html"];
+  const paginasComLoading = ["index.html", "resultado.html", "anime.html"];
+
+  if (paginasComLoading.includes(paginaAtual)) {
+    overlay?.classList.remove("hidden");
+  }
+
   const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   let listaWatchlist = usuarioLogado ? users[usuarioLogado.username]?.watchlist || [] : [];
 
-  // 🔐 Redirecionamento condicional
   if (!usuarioLogado && !paginasPublicas.includes(paginaAtual)) {
     window.location.href = "login.html";
     return;
@@ -25,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // 👤 Botões de login e logout
   const loginBtn = document.querySelector(".login-btn");
   const registerBtn = document.querySelector(".register-btn");
 
@@ -40,8 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.reload();
     });
   }
-
-  // 🎭 Menu de gêneros
   const submenuGeneros = document.querySelector(".dropdown .submenu-generos");
   const mapaGeneros = {
     "Ação": 1, "Aventura": 2, "Comédia": 4, "Drama": 8,
@@ -67,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔎 Busca com debounce
   const searchInput = document.getElementById("search");
   const searchResults = document.getElementById("search-results");
 
@@ -154,30 +156,28 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  // 🧭 Navegação e listas
   const params = new URLSearchParams(window.location.search);
   const generoQuery = params.get("genero");
   const buscaQuery = params.get("busca");
 
   if (paginaAtual === "watchlist.html") {
-    carregarWatchlist(); // você pode definir essa função no próprio watchlist.js
+    carregarWatchlist().finally(() => overlay?.classList.add("hidden"));
   } else if (generoQuery) {
     buscarPorGenero(generoQuery).then(animes => {
       preencherLista("resultado-genero", animes);
-    });
+    }).finally(() => overlay?.classList.add("hidden"));
   } else if (buscaQuery) {
     buscarPorNome(buscaQuery).then(animes => {
       preencherLista("resultado-busca", animes);
-    });
+    }).finally(() => overlay?.classList.add("hidden"));
   } else {
-    carregarListas();
+    carregarListas().finally(() => overlay?.classList.add("hidden"));
   }
 
   async function carregarListas() {
-    preencherLista("mais-vistos-list", await buscarMaisVistos());
-    preencherLista("top-avaliados-list", await buscarTopAvaliados(), true);
-    preencherLista("temporada-atual-list", await buscarTemporadaAtual());
+    await preencherLista("mais-vistos-list", await buscarMaisVistos());
+    await preencherLista("top-avaliados-list", await buscarTopAvaliados(), true);
+    await preencherLista("temporada-atual-list", await buscarTemporadaAtual());
   }
 
   async function preencherLista(id, animes, mostrarNota = false) {
@@ -230,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(li);
     }
 
-    // 🎞️ Configuração do carrossel e delegação de eventos
     if (!id.includes("resultado")) {
       new Splide(`#${id.replace("-list", "")}`, {
         type: 'loop',
@@ -249,7 +248,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }).mount();
 
-      // Delegação para adicionar à watchlist via click
       container.addEventListener("click", e => {
         const btn = e.target.closest(".btn-watchlist-icon");
         if (!btn || !usuarioLogado) return;

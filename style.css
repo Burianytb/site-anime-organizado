@@ -964,6 +964,61 @@ h2 {
   font-size: 16px;
 }
 
+/* ========== LOADING ========== */
+
+body.loading {
+  overflow: hidden;
+}
+
+#overlay-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  font-size: 1.5em;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  transition: opacity 0.3s ease;
+}
+
+#overlay-loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Spinner animado */
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+  border: 5px solid #fff;
+  border-top-color: #00bfff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Animação de rotação */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ajuste para alinhar spinner + texto */
+#overlay-loading {
+  flex-direction: row;
+  /* alinha spinner e texto lado a lado */
+  gap: 10px;
+}
+
+
 
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 768px) {
