@@ -5,8 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const comentarioForm = document.getElementById("comentario-form");
   const listaComentarios = document.getElementById("lista-comentarios");
+
   const getUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
   const saveUsers = (users) => localStorage.setItem("users", JSON.stringify(users));
+
+  const getUsuarioLogado = () => JSON.parse(sessionStorage.getItem("usuarioLogado"));
 
   // Registro
   if (registerForm) {
@@ -58,6 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
           email: usuario.email || null,
           dataRegistro: usuario.dataRegistro || null
         }));
+
+        sessionStorage.setItem("watchlist", JSON.stringify(usuario.watchlist || []));
+
         window.location.href = "index.html";
       } else {
         alert("Usuário ou senha inválidos.");
